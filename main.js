@@ -46,7 +46,6 @@ map.addControl(mousePositionControl);
   zoomButton.className = 'zoom-button ol-unselectable ol-control';
   zoomButton.addEventListener('click', function() {
   zoomButton.classList.toggle('active');
-  // const active = zoomButton.classList.contains('active');
     zoomButtonClicked = true;
     map.addInteraction(dragBox);
   });
@@ -128,15 +127,6 @@ dragBox.on('boxend', function() {
 });
 
 function revertToPreviousState() {
-  // if (previousMapStates.length > 0) {
-  //   const previousState = previousMapStates.pop();
-  //   undoneMapStates.push(previousState);
-  //   map.getView().animate({
-  //     center: previousState.center,
-  //     zoom: previousState.zoom,
-  //     duration: 200,
-  //   });
-  // }
   const prevState = previousMapStates.pop();
   if (prevState) {
     undoneMapStates.push({
@@ -153,21 +143,6 @@ function revertToPreviousState() {
 }
 
 function moveToNextState() {
-  // if (undoneMapStates.length > 0) {
-  //   const nextState = undoneMapStates.pop();
-  //   previousMapStates.push(nextState);
-  //   // map.getView().setCenter(nextStates.center);
-  //   // map.getView().setZoom(nextStates.zoom);
-  // if (undoneMapStates.length > 0) {
-  //   const nextStates = undoneMapStates[undoneMapStates.length - 1];
-  //   map.getView().animate({
-  //     center: nextStates.center,
-  //     zoom: nextStates.zoom,
-  //     duration: 200
-  //   });
-  // }
-  
-  // }
   const nextState = undoneMapStates.pop();
   if (nextState) {
     previousMapStates.push({

@@ -1,15 +1,19 @@
 {
   "name": "my-app",
   "version": "1.0.0",
+  "homepage": "https://dct.github.io/my-app",
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "devDependencies": {
     "vite": "^5.2.10"
   },
   "dependencies": {
+    "gh-pages": "^6.1.1",
     "ol": "latest"
   }
 }
