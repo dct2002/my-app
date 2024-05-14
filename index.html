@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>OpenLayers</title>
+    <style>
+      @import "node_modules/ol/ol.css";
+    </style>
+    <style>
+      html, body, #map-container {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        font-family: sans-serif;
+      }
+      .back-button {
+      position: fixed;
+      top: 10px;
+      right: 60px;
+      background-color: rgb(11, 11, 143);
+      color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+    .back-button:hover {
+      background-color: rgb(57, 57, 212);
+    }
+    .next-button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: rgb(11, 11, 143);
+      color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+    .next-button:hover {
+      background-color: rgb(57, 57, 212);
+    }
+    #mouse-position {
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      color: white;
+      border-top-left-radius: 5px;
+      width: 180px;
+      padding: 15px;
+      font-size: 16px;
+      background-color: rgb(11, 11, 143);
+    }
+    .zoom-button {
+      position: fixed;
+      top: 10px;
+      right: 160px;
+      background-color: rgb(11, 11, 143);
+      color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+    .zoom-button:hover {
+      background-color: rgb(57, 57, 212);
+    }
+
+    .zoom-out-button {
+      position: fixed;
+      top: 10px;
+      right: 110px;
+      background-color: rgb(11, 11, 143);
+      color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+    .zoom-out-button:hover {
+      background-color: rgb(57, 57, 212);
+    }
+    .move-button {
+      position: fixed;
+      top: 10px;
+      right: 210px;
+      background-color: rgb(11, 11, 143);
+      color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+    .move-button:hover {
+      background-color: rgb(57, 57, 212);
+    }
+    
+    </style>
+  </head>
+  <body>
+    <div id="map-container"></div>
+    <div id="mouse-position"></div>
+    <script src="./main.js" type="module"></script>
+  </body>
+</html>
