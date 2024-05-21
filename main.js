@@ -8,24 +8,167 @@ import {DragBox} from 'ol/interaction.js';
 import { fromExtent } from 'ol/geom/Polygon';
 import MousePosition from 'ol/control/MousePosition';
 import { createStringXY } from 'ol/coordinate';
+import TileWMS from 'ol/source/TileWMS';
+import Overlay from 'ol/Overlay';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import GeoJSON from 'ol/format/GeoJSON';
+import Style from 'ol/style/Style';
+import Stroke from 'ol/style/Stroke';
+import Fill from 'ol/style/Fill';
+
+const meterWMSLayer = new TileLayer({
+  source: new TileWMS({
+      url: 'https://giscloud.vn/geoserver/globaltech_dev/wms',
+      params: {
+          'LAYERS': 'globaltech_dev:v_layer_customer_meter',
+          'TILED': true,
+          'FORMAT': 'image/png',
+          'TRANSPARENT': true,
+      },
+      serverType: 'geoserver',
+      crossOrigin: 'anonymous'
+  })
+});
+
+const lineWMSLayer = new TileLayer({
+  source: new TileWMS({
+      url: 'https://giscloud.vn/geoserver/globaltech_dev/wms',
+      params: {
+        'LAYERS': 'globaltech_dev:v_layer_pipe_line',
+        'TILED': true,
+        'FORMAT': 'image/png',
+        'TRANSPARENT': true
+      },
+      serverType: 'geoserver',
+      crossOrigin: 'anonymous'
+  })
+});
+
+const osmLayer = new TileLayer({
+  source: new OSM({
+      attributions: []
+  })
+});
+
+const highlightLayer = new VectorLayer({
+  source: new VectorSource(),
+  style: new Style({
+      stroke: new Stroke({
+          color: 'yellow',
+          width: 2
+      }),
+      fill: new Fill({
+          color: 'rgba(255, 255, 0, 0.5)'
+      })
+  })
+});
 
 const map = new Map({
   target: 'map-container',
   layers: [
-    new TileLayer({
-      source: new OSM({
-        attributions: []
-      }),
-    }),
+    osmLayer,
+    lineWMSLayer,
+    meterWMSLayer,
+    highlightLayer
   ],
   view: new View({
-    center: fromLonLat([105.8369637, 21.0227396]),
+    center: fromLonLat([106.6838751, 20.8614455]),
     zoom: 14,
-    maxZoom: 20,
+    maxZoom: 22,
     minZoom: 10,
   }),
   controls: defaultControls().extend([new ZoomSlider()]),
 });
+
+const popupElement = document.getElementById('popup');
+if (!popupElement) {
+  throw new Error('Popup element with id "popup" not found');
+}
+
+const popup = new Overlay({
+    element: popupElement,
+    positioning: 'top-left',
+    stopEvent: false,
+    offset: [0, -15]
+});
+map.addOverlay(popup);
+
+// Display popup on click
+map.on('singleclick', function (evt) {
+    const viewResolution = map.getView().getResolution();
+    const fetchFeatureInfo = (layer) => { 
+    const url = layer.getSource().getFeatureInfoUrl(
+        evt.coordinate, viewResolution, 'EPSG:3857',
+        { 'INFO_FORMAT': 'application/json'}
+    );
+
+    if (url) {
+      console.log('GetFeatureInfo URL:', url);
+      fetch(url)
+          .then(response => response.json())
+          .then(data => { 
+              if (data.features.length > 0) {
+                  const feature = data.features[0];
+                  const coordinate = evt.coordinate;
+                  const info = `
+                      <h3>${feature.id}</h3>
+                      <ul>
+                          ${Object.entries(feature.properties).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+                      </ul>
+                  `;
+                  popupElement.innerHTML = info;
+                  // popup.setPosition(coordinate);
+                  const pixel = map.getPixelFromCoordinate(coordinate);
+                  const adjustedPosition = adjustPopupPosition(popupElement, pixel);
+                  popup.setPosition(map.getCoordinateFromPixel(adjustedPosition));
+                  popupElement.style.display = 'block';
+
+                  const format = new GeoJSON();
+                  const features = format.readFeatures(data);
+                  highlightLayer.getSource().clear();
+                  highlightLayer.getSource().addFeatures(features);
+              } else {
+                  popupElement.style.display = 'none';
+                  highlightLayer.getSource().clear();
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching feature info:', error);
+              popupElement.style.display = 'none';
+              highlightLayer.getSource().clear();
+          });
+    }
+  };
+  fetchFeatureInfo(lineWMSLayer);
+  fetchFeatureInfo(meterWMSLayer);
+});
+
+// Hide popup on map move
+map.on('movestart', function () {
+  popupElement.style.display = 'none';
+  highlightLayer.getSource().clear();
+});
+
+function adjustPopupPosition(popupElement, coordinate) {
+  const popupRect = popupElement.getBoundingClientRect();
+  const mapRect = document.getElementById('map-container').getBoundingClientRect();
+
+  const offsetX = 15;
+  const offsetY = 15;
+
+  let x = coordinate[0] + offsetX;
+  let y = coordinate[1] + offsetY;
+
+  if (x + popupRect.width > mapRect.width) {
+      x = coordinate[0] - popupRect.width - offsetX;
+  }
+  if (y + popupRect.height > mapRect.height) {
+      y = coordinate[1] - popupRect.height - offsetY;
+  }
+
+  return [x, y];
+}
 
 const mousePositionControl = new MousePosition({
   coordinateFormat: createStringXY(7), 
@@ -98,7 +241,7 @@ dragBox.on('boxend', function() {
   const mapHeight = currentExtent[3] - currentExtent[1];
   const zoomFactorWidth = mapWidth / boxWidth;
   const zoomFactorHeight = mapHeight / boxHeight;
-  const zoomFactor = Math.min(zoomFactorWidth, zoomFactorHeight) / 4;  
+  const zoomFactor = Math.min(zoomFactorWidth, zoomFactorHeight) / 8;  
   const newZoom = map.getView().getZoom() - zoomFactor;
   const newCenter = [
     (newExtent[0] + newExtent[2]) / 2,
