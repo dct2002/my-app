@@ -15,6 +15,7 @@ import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
+import CircleStyle from 'ol/style/Circle';
 import Fill from 'ol/style/Fill';
 
 const meterWMSLayer = new TileLayer({
@@ -54,15 +55,59 @@ const osmLayer = new TileLayer({
 
 const highlightLayer = new VectorLayer({
   source: new VectorSource(),
-  style: new Style({
-      stroke: new Stroke({
-          color: 'yellow',
-          width: 2
-      }),
-      fill: new Fill({
-          color: 'rgba(255, 255, 0, 0.5)'
-      })
-  })
+  style: function (feature) {
+    const geometryType = feature.getGeometry().getType();
+    let style;
+    switch (geometryType) {
+      case 'Point':
+        style = new Style({
+          image: new CircleStyle({
+            radius: 5,
+            fill: new Fill({
+              color: 'rgba(255, 255, 0, 0.5)'
+            }),
+            stroke: new Stroke({
+              color: 'yellow',
+              width: 2
+            })
+          })
+        });
+        break;
+      case 'LineString':
+      case 'MultiLineString':
+        style = new Style({
+          stroke: new Stroke({
+            color: 'yellow',
+            width: 2
+          })
+        });
+        break;
+      case 'Polygon':
+      case 'MultiPolygon':
+        style = new Style({
+          stroke: new Stroke({
+            color: 'yellow',
+            width: 2
+          }),
+          fill: new Fill({
+            color: 'rgba(255, 255, 0, 0.5)'
+          })
+        });
+        break;
+      default:
+        style = new Style({
+          stroke: new Stroke({
+            color: 'yellow',
+            width: 2
+          }),
+          fill: new Fill({
+            color: 'rgba(255, 255, 0, 0.5)'
+          })
+        });
+        break;
+    }
+    return style;
+  }
 });
 
 const map = new Map({
