@@ -33,13 +33,14 @@ const meterWMSLayer = new TileLayer({
 
 const lineWMSLayer = new TileLayer({
   source: new TileWMS({
-      url: 'https://giscloud.vn/geoserver/globaltech_dev/wms',
-      params: {
+    url: 'https://giscloud.vn/geoserver/globaltech_dev/wms',
+    params: {
         'LAYERS': 'globaltech_dev:v_layer_pipe_line',
         'TILED': true,
+        'STYLES': 'line',
         'FORMAT': 'image/png',
-        'TRANSPARENT': true
-      },
+        'TRANSPARENT': true,
+    },
       serverType: 'geoserver',
       crossOrigin: 'anonymous'
   })
